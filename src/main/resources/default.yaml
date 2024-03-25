@@ -1,0 +1,172 @@
+featureFlags:
+  flags:
+    - flag:
+        name: Another Flag
+        identifier: Another_Flag
+        description: ""
+        permanent: false
+        spec:
+          type: boolean
+          default:
+            onVariation: "true"
+            offVariation: "false"
+          variations:
+            - identifier: "true"
+              value: "true"
+            - identifier: "false"
+              value: "false"
+        environments:
+          - identifier: dev
+            default:
+              onVariation: "true"
+              offVariation: "false"
+            state: "off"
+          - identifier: kloonlocaltest
+            default:
+              onVariation: "true"
+              offVariation: "false"
+            state: "off"
+    - flag:
+        name: big-if-true
+        identifier: big_if_true
+        description: This is a description of the flag.
+        permanent: false
+        spec:
+          type: boolean
+          default:
+            onVariation: "true"
+            offVariation: "false"
+          variations:
+            - identifier: "true"
+              value: "true"
+            - identifier: "false"
+              value: "false"
+        environments:
+          - identifier: dev
+            default:
+              onVariation: "true"
+              offVariation: "false"
+            state: "on"
+          - identifier: kloonlocaltest
+            default:
+              onVariation: "true"
+              offVariation: "false"
+            state: "off"
+    - flag:
+        name: Flag with Spaces
+        identifier: Flag_with_Spaces
+        description: This flag has spaces in its name.
+        permanent: false
+        spec:
+          type: boolean
+          default:
+            onVariation: "false"
+            offVariation: "false"
+          variations:
+            - identifier: "true"
+              value: "true"
+            - identifier: "false"
+              value: "false"
+        environments:
+          - identifier: dev
+            default:
+              onVariation: "false"
+              offVariation: "false"
+            state: "on"
+          - identifier: kloonlocaltest
+            default:
+              onVariation: "false"
+              offVariation: "false"
+            state: "off"
+    - flag:
+        name: other-flag
+        identifier: otherflag
+        description: Woah there, another feature flag.
+        permanent: false
+        spec:
+          type: boolean
+          default:
+            onVariation: "false"
+            offVariation: "false"
+          variations:
+            - identifier: "true"
+              value: "true"
+            - identifier: "false"
+              value: "false"
+        tags:
+          - tag:
+              name: other
+              identifier: other
+        environments:
+          - identifier: dev
+            default:
+              onVariation: "false"
+              offVariation: "false"
+            state: "off"
+          - identifier: kloonlocaltest
+            default:
+              onVariation: "false"
+              offVariation: "false"
+            state: "off"
+    - flag:
+        name: Targetted Flag
+        identifier: Targetted_Flag
+        description: This flag is targetted, probably.
+        permanent: false
+        spec:
+          type: boolean
+          default:
+            onVariation: "false"
+            offVariation: "false"
+          variations:
+            - identifier: "true"
+              value: "true"
+            - identifier: "false"
+              value: "false"
+        environments:
+          - identifier: dev
+            default:
+              onVariation: "false"
+              offVariation: "false"
+            state: "off"
+            targetRules:
+              - targets:
+                  - identifier: javasdk
+                variation: "true"
+          - identifier: kloonlocaltest
+            default:
+              onVariation: "false"
+              offVariation: "false"
+            state: "off"
+    - flag:
+        name: variate-flag
+        identifier: variateflag
+        description: Oo la la!
+        permanent: false
+        spec:
+          type: string
+          default:
+            onVariation: disabl
+            offVariation: var1
+          variations:
+            - identifier: var1
+              value: ding dong
+            - identifier: var2
+              value: badabing
+            - identifier: lastvar
+              value: alakazam
+            - identifier: disabl
+              value: disabl!!!
+        environments:
+          - identifier: dev
+            default:
+              onVariation: var2
+              offVariation: disabl
+            state: "on"
+          - identifier: kloonlocaltest
+            default:
+              onVariation: disabl
+              offVariation: var1
+            state: "off"
+  projectIdentifier: default_project
+  orgIdentifier: default
