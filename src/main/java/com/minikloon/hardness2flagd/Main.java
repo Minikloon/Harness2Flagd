@@ -10,36 +10,56 @@ import com.minikloon.hardness2flagd.flagd.FlagdFlag;
 import com.minikloon.hardness2flagd.flagd.FlagdState;
 import com.minikloon.hardness2flagd.harness.HarnessFlag;
 import com.minikloon.hardness2flagd.harness.file.HarnessFeatureFlagsFile;
+import org.tinylog.Logger;
 
 import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Stream;
 
 public class Main {
     public static void main(String[] args) throws Exception {
-        InputStream stream = Main.class.getClassLoader().getResourceAsStream("default.yaml");
-        String harnessYaml = new String(stream.readAllBytes());
-        System.out.println(harnessYaml);
+        Path workingDir = Paths.get("");
 
-        ObjectMapper mapper = new ObjectMapper(new YAMLFactory())
-                .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-        HarnessFeatureFlagsFile harnessFile = mapper.readValue(harnessYaml, HarnessFeatureFlagsFile.class);
+        Path generatedDir = workingDir.resolve("generated");
+        Files.createDirectories(generatedDir);
 
-        List<HarnessFlag> flags = harnessFile.flags().toList();
-        System.out.println("flag: " + flags.size());
-        flags.forEach(flag -> {
-            System.out.println(flag);
-        });
+        try (Stream<Path> walk = Files.walk(workingDir, 10)) {
+            walk.filter(Files::isRegularFile)
+                    .filter(p -> p.getFileName().toString().endsWith(".yaml"))
+                    .forEach(inputPath -> {
+                        String inputFilename = com.google.common.io.Files.getNameWithoutExtension(inputPath.getFileName().toString());
+                        Logger.info("Converting " + inputPath.toAbsolutePath() + "...");
+                        try {
+                            String harnessYaml = new String(Files.readAllBytes(inputPath));
+                            ObjectMapper mapper = new ObjectMapper(new YAMLFactory())
+                                    .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+                            HarnessFeatureFlagsFile harnessFile = mapper.readValue(harnessYaml, HarnessFeatureFlagsFile.class);
 
-        Collection<FlagdFile> outputs = harnessFileToFlagd(harnessFile);
-        System.out.println("outputs: " + outputs.size());
-        Gson gson = new GsonBuilder().setPrettyPrinting().create();
-        outputs.forEach(output -> {
-            String fileJson = gson.toJson(output);
-            System.out.println("Environment " + output.environment() + ": " + fileJson);
-        });
+                            Collection<FlagdFile> outputs = harnessFileToFlagd(harnessFile);
+                            Gson gson = new GsonBuilder().setPrettyPrinting().create();
+                            for (FlagdFile output : outputs) {
+                                String fileJson = gson.toJson(output);
+
+                                Path outputDir = generatedDir.resolve(inputPath.normalize()).getParent();
+
+                                String outputFilename = inputFilename + "-" + output.environment() + ".json";
+                                Path outputPath = outputDir.resolve(outputFilename);
+
+                                Files.write(outputPath, fileJson.getBytes());
+                                Logger.info("Converted " + inputPath.toAbsolutePath() + " to " + outputPath.toAbsolutePath());
+                            }
+                        } catch (Throwable t) {
+                            Logger.error(t, "Error converting " + inputPath.toAbsolutePath());
+                        }
+                    });
+        }
     }
 
     // outputs one file per harness environment
