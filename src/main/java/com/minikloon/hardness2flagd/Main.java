@@ -8,18 +8,14 @@ import com.google.gson.GsonBuilder;
 import com.minikloon.hardness2flagd.flagd.FlagdFile;
 import com.minikloon.hardness2flagd.flagd.FlagdFlag;
 import com.minikloon.hardness2flagd.flagd.FlagdState;
-import com.minikloon.hardness2flagd.harness.HarnessFlag;
 import com.minikloon.hardness2flagd.harness.file.HarnessFeatureFlagsFile;
 import org.tinylog.Logger;
 
-import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.nio.file.StandardOpenOption;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.stream.Stream;
 
@@ -72,7 +68,7 @@ public class Main {
             harnessFlag.environments().forEach(environment -> {
                 FlagdFile flagdFile = flagdFileByEnvironment.computeIfAbsent(environment.identifier(), envId -> new FlagdFile(envId, new HashMap<>()));
                 String flagIdentifier = harnessFlag.identifier();
-                FlagdState state = FlagdState.parseFromHarness(environment.state());
+                FlagdState state = FlagdState.ENABLED;
 
                 String variant = environment.computeVariant();
 
